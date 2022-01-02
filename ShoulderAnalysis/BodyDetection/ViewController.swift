@@ -63,6 +63,7 @@ class ViewController: UIViewController, ARSessionDelegate {
             // Update the position of the character anchor's position.
             let bodyPosition = simd_make_float3(bodyAnchor.transform.columns.3)
             characterAnchor.position = bodyPosition + characterOffset
+            
             // Also copy over the rotation of the body anchor, because the skeleton's pose
             // in the world is relative to the body anchor's rotation.
             characterAnchor.orientation = Transform(matrix: bodyAnchor.transform).rotation
@@ -85,13 +86,27 @@ class ViewController: UIViewController, ARSessionDelegate {
     func extractMainJointTransforms(from skeleton: ARSkeleton3D) {
         // Example: How to get coordinates of some of the joints.
         // Note: this is not a complete list of all joints you could get!
-        //        let head = coordinates(from: skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_hand_joint")))
-        let rightHandJoint = coordinates(from: skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_hand_joint")), name: ARSkeleton.JointName(rawValue: "right_hand_joint"))
+        // let head = coordinates(from: skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_hand_joint")))
+        // let rightHandJoint = coordinates(from: skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_hand_joint")), name: ARSkeleton.JointName(rawValue: "right_hand_joint"))
+        
+        
+        // Not all joint names have been defined in the ARSkeleton.JointName struct, therefore use rawvalue
+        let rightHipJoint = coordinates(from: skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_upLeg_joint")), name: ARSkeleton.JointName(rawValue: "right_upLeg_joint"))
+        
+        print(ARSkeletonDefinition.defaultBody3D.jointNames)
+        
+        print(rightHipJoint)
+        
+        let rightArmJoint = coordinates(from: skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_arm_joint")), name: ARSkeleton.JointName(rawValue: "right_arm_joint"))
+        
+        let rightShoulderJoint = coordinates(from: skeleton.modelTransform(for: .rightShoulder), name: .rightShoulder)
+        
         //        let leftShoulder = coordinates(from: skeleton.modelTransform(for: .leftShoulder), name: .leftShoulder)
         //        let leftHand = coordinates(from: skeleton.modelTransform(for: .leftHand), name: .leftHand)
         //        let rightShoulder = coordinates(from: skeleton.modelTransform(for: .rightShoulder), name: .rightShoulder)
         //        let rightHand = coordinates(from: skeleton.modelTransform(for: .rightHand), name: .rightHand)
-        //        let root = coordinates(from: skeleton.modelTransform(for: .root), name: .root)
+        let root = skeleton.modelTransform(for: .root)!
+        let rootPosition = simd_make_float3(root.columns.3)
         //        let leftHipJoint = ARSkeleton.JointName.init(rawValue: "left_upLeg_joint")
         //        let leftHip = coordinates(from: skeleton.modelTransform(for: leftHipJoint), name: leftHipJoint)
         //        let rightHipJoint = ARSkeleton.JointName.init(rawValue: "right_upLeg_joint")
@@ -104,24 +119,48 @@ class ViewController: UIViewController, ARSessionDelegate {
         //        let rightFoot = coordinates(from: skeleton.modelTransform(for: .rightFoot), name: .rightFoot)
         
         // TODO: Save the data somehow and/or process it
+        // https://www.youtube.com/watch?v=GDShA2Rz0F8
         
-        print("x", rightHandJoint?.x ?? 0.0)
-        print("y", rightHandJoint?.y ?? 0.0)
-        print("z", rightHandJoint?.z ?? 0.0)
+        if let rSJ = rightShoulderJoint {
+            if let rHJ = rightHipJoint {
+                if let rAJ = rightArmJoint {
+                    let rVectorSA = rSJ.minus(rAJ)
+                    let rVectorSU = rSJ.minus(rHJ)
+                    let res = (acos(abs(rVectorSA.dotProduct(rVectorSU)) / (rVectorSA.length + rVectorSU.length)))*180/3.14159265359
+                    print(res)
+                }
+            }
+        }
+        
+        
     }
+    
     
     func coordinates(from transform: simd_float4x4?, name: ARSkeleton.JointName) -> JointPosition? {
         if let transform = transform {
-            let position = simd_make_float3(transform.columns.3)
+            let position = simd_make_float3(transform.columns.3) // offset from the root joint
             return JointPosition(type: name.rawValue, x: position.x, y: position.y, z: position.z)
         }
         return nil
     }
 }
 
+// JointPosition is the vector that stores the coordinates
 struct JointPosition {
-    var type: String
+    var type: String?
     var x: Float
     var y: Float
     var z: Float
+    
+    func dotProduct(_ jointPosition: JointPosition) -> Float {
+        return self.x*jointPosition.x + self.y*jointPosition.y + self.z*jointPosition.z
+    }
+    
+    var length: Float {
+        return sqrt(x*x+y*y+z*z)
+    }
+    
+    func minus(_ jointPosition: JointPosition) -> JointPosition {
+        return JointPosition(x: self.x-jointPosition.x, y: self.y-jointPosition.y, z: self.z-jointPosition.z)
+    }
 }
