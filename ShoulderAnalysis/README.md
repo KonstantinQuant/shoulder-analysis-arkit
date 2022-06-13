@@ -1,6 +1,6 @@
-# Capturing Body Motion in 3D
+# Medical Shoulder Examination using Augmented Reality and Computer Vision
 
-Track a person in the physical environment and visualize their motion by applying the same body movements to a virtual character.  
+
 
 ## Overview
 
