@@ -32,7 +32,7 @@ class HumanJointsView: UIView {
     override func draw(_ rect: CGRect) {
         path.removeAllPoints()
         self.points.forEach { point in
-            path = UIBezierPath(ovalIn: CGRect(x: point.x, y: point.y, width: CGFloat(10), height: CGFloat(10)))
+            path = UIBezierPath(ovalIn: CGRect(x: point.x, y: point.y, width: CGFloat(3), height: CGFloat(3)))
             UIColor.green.setFill()
             path.fill()
         }

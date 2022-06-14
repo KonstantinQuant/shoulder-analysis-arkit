@@ -15,6 +15,7 @@ class ViewController: UIViewController, ARSessionDelegate {
     @IBOutlet var arView: ARView!
     @IBOutlet weak var shoudlerAngleLabel: UILabel!
     var humanJointsView = HumanJointsView()
+    var frontalAngleAnalysisView = FrontalAngleAnalysisView()
     
     var isRecording = true
     
@@ -26,6 +27,7 @@ class ViewController: UIViewController, ARSessionDelegate {
     
     override func viewDidLoad() {
         self.view.addSubview(humanJointsView)
+        self.view.addSubview(frontalAngleAnalysisView)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -89,29 +91,14 @@ class ViewController: UIViewController, ARSessionDelegate {
             // Accessing the Skeleton Geometry
             if isRecording {
                 let skeleton = bodyAnchor.skeleton
-                extractMainJointTransforms(from: skeleton, camera: arCamera, bodyPos: bodyPosition)
+                //extractMainJointTransforms(from: skeleton, camera: arCamera, bodyPos: bodyPosition)
+                performFrontalAngleAnalysis(from: skeleton, camera: arCamera, bodyPos: bodyPosition)
             }
         }
     }
     
     func extractMainJointTransforms(from skeleton: ARSkeleton3D, camera: ARCamera, bodyPos: simd_float3) {
-        // Not all joint names have been defined in the ARSkeleton.JointName struct, therefore use rawvalue
-        let rightUpLeg = skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_upLeg_joint"))!
-        let rightArm = skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_arm_joint"))!
-        let rightShoulder = skeleton.modelTransform(for: .rightShoulder)! //right_shoulder_1_joint
-        
-        let startOffset = simd_make_float3(rightUpLeg.columns.3)
-        let midOffset = simd_make_float3(rightShoulder.columns.3)
-        let endOffset = simd_make_float3(rightArm.columns.3)
-        
-        let angle = calculateJointAngle(startOffset, midOffset, endOffset)
-        
-        DispatchQueue.main.async {
-            self.shoudlerAngleLabel.text = "\(angle)°"
-        }
-        
         // print(ARSkeletonDefinition.defaultBody3D.jointNames)
-        
         
         var globalProjections: [CGPoint] = []
         
@@ -128,21 +115,60 @@ class ViewController: UIViewController, ARSessionDelegate {
         humanJointsView.frame = UIScreen.main.bounds
         humanJointsView.points = globalProjections
         
+        DispatchQueue.main.async {
+            self.shoudlerAngleLabel.text = "TODO°"
+        }
+    }
+    
+
+    func performFrontalAngleAnalysis(from skeleton: ARSkeleton3D, camera: ARCamera, bodyPos: simd_float3) {
         
+        let rightArmPosition = bodyPos + simd_make_float3(skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_arm_joint"))!.columns.3)
+        let rightForearmPosition = bodyPos + simd_make_float3(skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_forearm_joint"))!.columns.3)
+        let rightUpLegPosition = bodyPos + simd_make_float3(skeleton.modelTransform(for: ARSkeleton.JointName(rawValue: "right_upLeg_joint"))!.columns.3)
+        
+        let rightArmP = camera.projectPoint(rightArmPosition, orientation: .portrait, viewportSize: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+        
+        let rightForearmP = camera.projectPoint(rightForearmPosition, orientation: .portrait, viewportSize: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+        
+        let rightUpLegP = camera.projectPoint(rightUpLegPosition, orientation: .portrait, viewportSize: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+        
+        frontalAngleAnalysisView.frame = UIScreen.main.bounds
+        frontalAngleAnalysisView.points = [rightForearmP, rightArmP, rightUpLegP]
+
+        print(rightForearmP, rightArmP, rightUpLegP)
+        
+        self.view.bringSubviewToFront(frontalAngleAnalysisView)
+        self.view.bringSubviewToFront(self.shoudlerAngleLabel)
+        
+        let point3 = CGPoint(x: rightArmP.x, y: rightUpLegP.y)
+        
+        let angle = calculateJointAngle(p1: rightForearmP, p2: rightArmP, p3: point3)
+        DispatchQueue.main.async {
+            self.shoudlerAngleLabel.text = "\(String(format: "%.3f", angle))°"
+        }
     }
     
     
-    func processJoints(joints: [simd_float4x4], pMatrix: simd_float4x4) {
+    func calculateJointAngle(p1: CGPoint, p2: CGPoint, p3: CGPoint) -> Double {
         
-        
+        let ba = CGPoint(x: p1.x - p2.x, y: p1.y - p2.y)
+        let bc = CGPoint(x: p3.x - p2.x, y: p3.y - p2.y)
+           
+
+        let dotprod = ba.x * bc.x + ba.y * bc.y
+            
+
+        let banorm = sqrt(ba.x * ba.x + ba.y * ba.y)
+        let bcnorm = sqrt(bc.x * bc.x + bc.y * bc.y)
+
+        let cosine_angle = dotprod / (banorm * bcnorm)
+
+        let angle = acos(cosine_angle)
+
+       return (angle * 180 / Double.pi)
     }
     
-    func calculateJointAngle(_ startOffset: SIMD3<Float>, _ midOffset: SIMD3<Float>, _ endOffset: SIMD3<Float>) -> Float {
-        let v1 = simd_normalize(startOffset - midOffset)
-        let v2 = simd_normalize(endOffset - midOffset)
-        let dot = simd_dot(v1, v2)
-        return GLKMathRadiansToDegrees(acos(dot))
-    }
 }
 
 

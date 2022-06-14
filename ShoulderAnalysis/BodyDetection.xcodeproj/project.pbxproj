@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		088AAA58285798F8001B17E2 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 088AAA57285798F8001B17E2 /* Common.swift */; };
+		088AAA5C2857EC15001B17E2 /* FrontalAngleAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 088AAA5B2857EC15001B17E2 /* FrontalAngleAnalysisView.swift */; };
 		08E66558278063410064C416 /* HumanJointsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08E66557278063410064C416 /* HumanJointsView.swift */; };
 		0C8C7868228387D2006A6EE1 /* character in Resources */ = {isa = PBXBuildFile; fileRef = 0C8C7867228387D2006A6EE1 /* character */; };
 		2F60E1DB22631E0F00357E98 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F60E1DA22631E0F00357E98 /* AppDelegate.swift */; };
@@ -20,6 +21,7 @@
 
 /* Begin PBXFileReference section */
 		088AAA57285798F8001B17E2 /* Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
+		088AAA5B2857EC15001B17E2 /* FrontalAngleAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrontalAngleAnalysisView.swift; sourceTree = "<group>"; };
 		08E66557278063410064C416 /* HumanJointsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HumanJointsView.swift; sourceTree = "<group>"; };
 		0C8C7867228387D2006A6EE1 /* character */ = {isa = PBXFileReference; lastKnownFileType = folder; path = character; sourceTree = "<group>"; };
 		2F60E1D822631E0E00357E98 /* BodyDetection.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BodyDetection.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -49,6 +51,7 @@
 			isa = PBXGroup;
 			children = (
 				08E66557278063410064C416 /* HumanJointsView.swift */,
+				088AAA5B2857EC15001B17E2 /* FrontalAngleAnalysisView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -179,6 +182,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				088AAA58285798F8001B17E2 /* Common.swift in Sources */,
+				088AAA5C2857EC15001B17E2 /* FrontalAngleAnalysisView.swift in Sources */,
 				08E66558278063410064C416 /* HumanJointsView.swift in Sources */,
 				2F60E1DD22631E0F00357E98 /* ViewController.swift in Sources */,
 				2F60E1DB22631E0F00357E98 /* AppDelegate.swift in Sources */,
@@ -343,7 +347,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.example.apple-samplecode.BodyDetection${SAMPLE_CODE_DISAMBIGUATOR}";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mrg.konstantin.BodyDetectionM9VBDT857G;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -368,7 +372,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.example.apple-samplecode.BodyDetection${SAMPLE_CODE_DISAMBIGUATOR}";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mrg.konstantin.BodyDetectionM9VBDT857G;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
